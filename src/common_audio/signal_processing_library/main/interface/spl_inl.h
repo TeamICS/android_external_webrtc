@@ -19,10 +19,19 @@
 
 #ifdef WEBRTC_ANDROID
 
+__asm (
+   // On Android gcc compiler, the clz instruction is not supported with a
+   // target smaller than armv7, despite it being legal for armv5+.
+"   .arch armv7-a\n"
+//"   clz     %0, %1  \n"
+//"=r"    (leading_zeroes)
+//"r"     (data)
+);
+
 WEBRTC_INLINE WebRtc_Word32 WEBRTC_SPL_MUL(WebRtc_Word32 a, WebRtc_Word32 b)
 {
     WebRtc_Word32 tmp;
-    __asm__("mul %0, %1, %2":"=r"(tmp):"r"(a), "r"(b));
+    __asm__("smmul %0, %1, %2":"=r"(tmp):"r"(a), "r"(b)); //changed mul to smmul.
     return tmp;
 }
 
@@ -66,7 +75,7 @@ WEBRTC_INLINE WebRtc_Word16 WebRtcSpl_AddSatW16(WebRtc_Word16 a,
 {
     WebRtc_Word32 s_sum;
 
-    __asm__("qadd16 %0, %1, %2":"=r"(s_sum):"r"(a), "r"(b));
+    __asm__("qadd %0, %1, %2":"=r"(s_sum):"r"(a), "r"(b));
 
     return (WebRtc_Word16) s_sum;
 }
@@ -86,7 +95,7 @@ WEBRTC_INLINE WebRtc_Word16 WebRtcSpl_SubSatW16(WebRtc_Word16 var1,
 {
     WebRtc_Word32 s_sub;
 
-    __asm__("qsub16 %0, %1, %2":"=r"(s_sub):"r"(var1), "r"(var2));
+    __asm__("qsub %0, %1, %2":"=r"(s_sub):"r"(var1), "r"(var2));
 
     return (WebRtc_Word16)s_sub;
 }
